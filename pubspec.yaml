@@ -54,6 +54,7 @@ dependencies:
   google_sign_in: ^5.2.1
   flutter_chat_ui: ^1.6.12
   http: ^1.2.1
+  camera: ^0.8.1+7
   
 
 
