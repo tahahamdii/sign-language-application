@@ -79,7 +79,7 @@ class _ScreenChatState extends State<ScreenChat> {
     double screenHeight = MediaQuery.of(context).size.height - 250;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat with ${widget.contactId}'),
+        title: Text('Chat withh ${widget.contactId}'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
