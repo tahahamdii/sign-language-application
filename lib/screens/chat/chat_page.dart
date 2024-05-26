@@ -35,7 +35,7 @@ class _ScreenChatState extends State<ScreenChat> {
 
   void _onConnectCallback(StompFrame connectFrame) {
     _client.subscribe(
-      destination: '/user/chatt/${widget.currentUserId}/queue/messages',
+      destination: '/user/${widget.currentUserId}/queue/messages',
       callback: (StompFrame frame) {
         if (frame.body != null) {
           Map<String, dynamic> receivedMessage = json.decode(frame.body!);
