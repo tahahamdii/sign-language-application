@@ -1,22 +1,21 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:stomp_dart_client/src/stomp.dart';
-import 'package:stomp_dart_client/src/stomp_config.dart';
+import 'package:stomp_dart_client/src/stomp_frame.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 class ScreenChat extends StatefulWidget {
   final String currentUserId;
   final String contactId;
   const ScreenChat(
-      {super.key, required this.currentUserId, required this.contactId});
+      {Key? key, required this.currentUserId, required this.contactId})
+      : super(key: key);
 
   @override
-  ScreenChatState createState() => ScreenChatState();
+  _ScreenChatState createState() => _ScreenChatState();
 }
 
-class ScreenChatState extends State<ScreenChat> {
-  final String webSocketUrl = 'ws://192.168.56.1:8080/socket';
+class _ScreenChatState extends State<ScreenChat> {
   late StompClient _client;
   final TextEditingController _controller = TextEditingController();
   List<Map<String, dynamic>> messages = [];
@@ -26,24 +25,27 @@ class ScreenChatState extends State<ScreenChat> {
     super.initState();
     _client = StompClient(
       config: StompConfig(
-        url: webSocketUrl,
-        onConnect: onConnectCallback,
+        url: 'ws://192.168.56.1:8080/socket',
+        onConnect: _onConnectCallback,
         onWebSocketError: (dynamic error) => print(error.toString()),
       ),
     );
     _client.activate();
   }
 
-  void onConnectCallback(StompFrame connectFrame) {
+  void _onConnectCallback(StompFrame connectFrame) {
     _client.subscribe(
       destination: '/user/chatt/${widget.currentUserId}/queue/messages',
       callback: (StompFrame frame) {
         if (frame.body != null) {
           Map<String, dynamic> receivedMessage = json.decode(frame.body!);
-          if (receivedMessage['senderId'] == widget.contactId ||
-              receivedMessage['recipientId'] == widget.contactId) {
+          if ((receivedMessage['senderId'] == widget.currentUserId &&
+                  receivedMessage['recipientId'] == widget.contactId) ||
+              (receivedMessage['senderId'] == widget.contactId &&
+                  receivedMessage['recipientId'] == widget.currentUserId)) {
             setState(() {
               messages.add(receivedMessage);
+              print(widget.currentUserId);
             });
           }
         }
@@ -55,8 +57,9 @@ class ScreenChatState extends State<ScreenChat> {
     final message = _controller.text;
     if (message.isNotEmpty) {
       final messageJson = {
-        'data': message,
-        'userId': widget.currentUserId,
+        'content': message,
+        'senderId': widget.currentUserId,
+        'recipientId': widget.contactId,
         'timestamp': DateTime.now().toIso8601String(),
       };
       _client.send(
@@ -65,7 +68,6 @@ class ScreenChatState extends State<ScreenChat> {
       );
       setState(() {
         messages.add(messageJson);
-        print(messages);
       });
       _controller.clear();
     }
@@ -76,7 +78,7 @@ class ScreenChatState extends State<ScreenChat> {
     double screenHeight = MediaQuery.of(context).size.height - 250;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat with ${widget.currentUserId}'),
+        title: Text('Chat with ${widget.contactId}'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -96,8 +98,8 @@ class ScreenChatState extends State<ScreenChat> {
                 itemBuilder: (context, index) {
                   Map<String, dynamic> item = messages[index];
                   return ListTile(
-                    title: Text(item['data']),
-                    subtitle: Text(item['timestamp']),
+                    title: Text(item['content'] ?? 'No content'),
+                    subtitle: Text(item['timestamp'] ?? 'No timestamp'),
                   );
                 },
               ),

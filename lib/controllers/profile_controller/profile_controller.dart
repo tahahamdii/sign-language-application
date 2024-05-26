@@ -38,6 +38,12 @@ class ProfileController extends GetxController {
 
   DioSingleton dioSingleton = DioSingleton();
 
+  RxString currentUserId = "".obs;
+
+  void setCurrentUserId(String userId) {
+    currentUserId.value = userId;
+  }
+
   void toggleDarkMode() {
     darkModeEnabled = !darkModeEnabled;
     update();
@@ -146,6 +152,8 @@ class ProfileController extends GetxController {
       userModel = UserLoginModel.fromJson(response.data);
       if (userModel != null) {
         AppStorge.saveId("${userModel!.userDetails!.id}");
+        setCurrentUserId(userModel!.userDetails!.id.toString());
+        print(currentUserId.value);
         AppStorge.saveUsername("${userModel!.userDetails!.username}");
         AppStorge.saveEmail("${userModel!.userDetails!.email}");
         print(AppStorge.readId());
@@ -154,7 +162,7 @@ class ProfileController extends GetxController {
         emailController.text = userModel!.userDetails!.email!;
         birthdayController.text = userModel!.userDetails!.birthday!;
         getUser(AppStorge.readId().toString());
-        Get.to(ConversationlistPage());
+        Get.to(ConversationlistPage(id: currentUserId.value));
       } else {
         // Afficher un message d'erreur ou gérer l'échec de la connexion
       }

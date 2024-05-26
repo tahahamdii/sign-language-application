@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messagerie/controllers/profile_controller/chat_controller.dart';
+import 'package:messagerie/controllers/profile_controller/profile_controller.dart';
 import 'package:messagerie/screens/chat/chat_page.dart';
 import 'package:messagerie/screens/chat/new_message_page.dart';
 import 'package:messagerie/screens/profile/profile_page.dart';
@@ -11,30 +12,28 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ConversationlistPage extends StatefulWidget {
-  const ConversationlistPage({Key? key}) : super(key: key);
+  const ConversationlistPage({Key? key, required this.id}) : super(key: key);
+  final String id;
 
   @override
   _ConversationlistPageState createState() => _ConversationlistPageState();
 }
 
 class _ConversationlistPageState extends State<ConversationlistPage> {
+  final ProfileController profileController = Get.find();
   int _currentIndex = 0;
   ChatController chatController = Get.put(ChatController());
   late StreamController<List<String>> _contactsStreamController;
   List<String> contacts = [];
-  late String currentUserId; // Variable to store current user ID
+  late String currentUserId;
 
   @override
   void initState() {
     super.initState();
     _contactsStreamController = StreamController<List<String>>.broadcast();
     _fetchContacts();
-    _fetchCurrentUserId(); // Fetch current user ID when the page initializes
-  }
-
-  Future<void> _fetchCurrentUserId() async {
-    // Fetch current user ID from local storage
-    currentUserId = await AppStorge.readId() ?? ""; // Assuming this is how you fetch the ID from storage
+    currentUserId = profileController.currentUserId.value;
+    print(currentUserId); // Fetch current user ID when the page initializes
   }
 
   @override
@@ -63,6 +62,7 @@ class _ConversationlistPageState extends State<ConversationlistPage> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.id); // Print widget ID (currentUserId
     return Scaffold(
       appBar: AppBar(
         title: Text("Conversation List"),
@@ -148,7 +148,7 @@ class _ConversationlistPageState extends State<ConversationlistPage> {
                             "asset/images/avatar.png", // You can change this to match your design
                         time: "Now", // You can change this to match your design
                         email: snapshot.data![index], // Pass email
-                        currentUserId: currentUserId, // Pass currentUserId
+                        currentUserId: widget.id, // Pass currentUserId
                         onTap: () {}, // Add an empty callback for now
                       );
                     },
@@ -220,7 +220,7 @@ class ChatUserWidget extends StatelessWidget {
     required this.time,
     required this.onTap,
     required this.email, // Update constructor
-    required this.currentUserId, // Add currentUserId parameter
+    required this.currentUserId, // Update constructor
   });
 
   @override
@@ -230,10 +230,10 @@ class ChatUserWidget extends StatelessWidget {
         String contactId = await _fetchContactId(email); // Fetch contact ID
         if (contactId.isNotEmpty) {
           Get.to(ScreenChat(
-            currentUserId:
-                currentUserId, // Use currentUserId from state
+            currentUserId: currentUserId, // Use currentUserId from state
             contactId: contactId,
           ));
+          print(currentUserId); // Print currentUserId
         } else {
           print('Failed to fetch contact ID for email: $email');
         }
@@ -268,4 +268,3 @@ class ChatUserWidget extends StatelessWidget {
     }
   }
 }
-
