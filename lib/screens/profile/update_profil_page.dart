@@ -147,7 +147,7 @@ class UpdateProfilPage extends GetView<ProfileController> {
               Get.to(ConversationlistPage());
               break;
             case 1:
-              Get.to(ScreenChat());
+              Get.to(ScreenChat(currentUserId: "specificChatId", contactId:  "currentUserId"));
               break;
             case 2:
               Get.to(UpdateProfilPage());

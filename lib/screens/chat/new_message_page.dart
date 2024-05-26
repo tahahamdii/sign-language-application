@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:messagerie/controllers/profile_controller/chat_controller.dart';
 import 'package:messagerie/controllers/profile_controller/profile_controller.dart';
+import 'package:messagerie/screens/chat/conversationlist_page%20copy.dart';
 
 class NewMessagePage extends GetView<ProfileController> {
   NewMessagePage({super.key});
@@ -11,7 +12,8 @@ class NewMessagePage extends GetView<ProfileController> {
 
   Future<void> sendMessage() async {
     final String recipientEmail = controller.emailController.text;
-    final int randomId = DateTime.now().millisecondsSinceEpoch; // Generate a random ID
+    final int randomId =
+        DateTime.now().millisecondsSinceEpoch; // Generate a random ID
 
     final Map<String, dynamic> payload = {
       'id': randomId,
@@ -28,7 +30,6 @@ class NewMessagePage extends GetView<ProfileController> {
         },
         body: jsonEncode(payload),
       );
-      
 
       if (response.statusCode == 200) {
         print('Message sent successfully');
@@ -66,7 +67,7 @@ class NewMessagePage extends GetView<ProfileController> {
             ElevatedButton(
               onPressed: () async {
                 await sendMessage();
-                
+                Get.to(ConversationlistPage());
               },
               child: const Text('Send', style: TextStyle(color: Colors.black)),
             ),

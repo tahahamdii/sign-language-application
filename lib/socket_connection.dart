@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:socket_io_client/socket_io_client.dart' as io;
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'dart:convert';
 
 class SocketIOExample extends StatefulWidget {
   @override
@@ -7,30 +8,29 @@ class SocketIOExample extends StatefulWidget {
 }
 
 class SocketIOExampleState extends State<SocketIOExample> {
-  final String serverUrl = 'ws://localhost:8080/socket';
-  late io.Socket socket;
+  final String serverUrl = 'http://localhost:8080/ws';
+  late IO.Socket socket;
   TextEditingController messageController = TextEditingController();
   List<String> messages = [];
 
   @override
   void initState() {
     super.initState();
-    print('ffffffffffffff');
+    print('Initializing WebSocket connection');
+
     // Initialize and connect to the socket server.
-    socket = io.io(serverUrl, <String, dynamic>{
+    socket = IO.io(serverUrl, <String, dynamic>{
       'transports': ['websocket'],
     });
 
     socket.connect();
     
-  print("ddddddddddddd");
-    // Event listeners.
     socket.onConnect((_) {
-      print('Connected to the socket server');
+      print('Connected to the WebSocket server');
     });
-  print("ssssssssssssssss");
+
     socket.onDisconnect((_) {
-      print('Disconnected from the socket server');
+      print('Disconnected from the WebSocket server');
     });
 
     socket.on('message', (data) {
@@ -44,12 +44,11 @@ class SocketIOExampleState extends State<SocketIOExample> {
   void sendMessage() {
     String message = messageController.text;
     if (message.isNotEmpty) {
-      socket.emit('start-conversation', {
+      socket.emit('chat', jsonEncode({
         'senderId': 'sender_id_here',
-        'receiverId': 'receiver_id_here',
-        'chanelId': 'chanel_id_here',
-        'message': message,
-      });
+        'recipientId': 'recipient_id_here',
+        'content': message,
+      }));
       messageController.clear();
     }
   }

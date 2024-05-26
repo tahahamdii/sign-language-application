@@ -6,6 +6,7 @@ import 'package:messagerie/screens/chat/chat_page.dart';
 import 'package:messagerie/screens/chat/new_message_page.dart';
 import 'package:messagerie/screens/profile/profile_page.dart';
 import 'package:messagerie/screens/profile/update_profil_page.dart';
+import 'package:messagerie/core/storage/app_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -21,12 +22,19 @@ class _ConversationlistPageState extends State<ConversationlistPage> {
   ChatController chatController = Get.put(ChatController());
   late StreamController<List<String>> _contactsStreamController;
   List<String> contacts = [];
+  late String currentUserId; // Variable to store current user ID
 
   @override
   void initState() {
     super.initState();
     _contactsStreamController = StreamController<List<String>>.broadcast();
     _fetchContacts();
+    _fetchCurrentUserId(); // Fetch current user ID when the page initializes
+  }
+
+  Future<void> _fetchCurrentUserId() async {
+    // Fetch current user ID from local storage
+    currentUserId = await AppStorge.readId() ?? ""; // Assuming this is how you fetch the ID from storage
   }
 
   @override
@@ -37,7 +45,8 @@ class _ConversationlistPageState extends State<ConversationlistPage> {
 
   Future<void> _fetchContacts() async {
     try {
-      final response = await http.get(Uri.parse('http://localhost:8080/api/contacts/get'));
+      final response =
+          await http.get(Uri.parse('http://localhost:8080/api/contacts/get'));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         setState(() {
@@ -76,7 +85,8 @@ class _ConversationlistPageState extends State<ConversationlistPage> {
                     Get.to(NewMessagePage());
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.purple,
                       borderRadius: BorderRadius.circular(20),
@@ -134,8 +144,12 @@ class _ConversationlistPageState extends State<ConversationlistPage> {
                       return ChatUserWidget(
                         text: snapshot.data![index],
                         secondaryText: "Tap to view messages",
-                        image: "asset/images/avatar.png", // You can change this to match your design
+                        image:
+                            "asset/images/avatar.png", // You can change this to match your design
                         time: "Now", // You can change this to match your design
+                        email: snapshot.data![index], // Pass email
+                        currentUserId: currentUserId, // Pass currentUserId
+                        onTap: () {}, // Add an empty callback for now
                       );
                     },
                   );
@@ -154,14 +168,17 @@ class _ConversationlistPageState extends State<ConversationlistPage> {
         onTap: (index) {
           setState(() {
             _currentIndex = index;
-            print(_currentIndex);
           });
           switch (index) {
             case 0:
               // Action to perform when "Chats" tab is selected
               break;
             case 1:
-              Get.to(ScreenChat());
+              // Navigate to ScreenChat with currentUserId and contactId
+              Get.to(ScreenChat(
+                currentUserId: currentUserId,
+                contactId: "currentUserId",
+              ));
               break;
             case 2:
               Get.to(UpdateProfilPage());
@@ -192,20 +209,34 @@ class ChatUserWidget extends StatelessWidget {
   final String secondaryText;
   final String image;
   final String time;
+  final VoidCallback onTap;
+  final String email; // Add email parameter
+  final String currentUserId; // Add currentUserId parameter
 
   const ChatUserWidget({
     required this.text,
     required this.secondaryText,
     required this.image,
     required this.time,
+    required this.onTap,
+    required this.email, // Update constructor
+    required this.currentUserId, // Add currentUserId parameter
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        // Handle contact tap
-        // You can navigate to a chat screen here if needed
+      onTap: () async {
+        String contactId = await _fetchContactId(email); // Fetch contact ID
+        if (contactId.isNotEmpty) {
+          Get.to(ScreenChat(
+            currentUserId:
+                currentUserId, // Use currentUserId from state
+            contactId: contactId,
+          ));
+        } else {
+          print('Failed to fetch contact ID for email: $email');
+        }
       },
       child: ListTile(
         leading: CircleAvatar(
@@ -217,4 +248,24 @@ class ChatUserWidget extends StatelessWidget {
       ),
     );
   }
+
+  Future<String> _fetchContactId(String email) async {
+    try {
+      final response = await http.get(
+          Uri.parse('http://localhost:8080/api/users/idByEmail?email=$email'));
+      if (response.statusCode == 200) {
+        final dynamic data = json.decode(response.body);
+        String contactId = data['id'] as String;
+        print(contactId);
+        return contactId;
+      } else {
+        print('Failed to fetch contact ID for email: $email');
+        return '';
+      }
+    } catch (e) {
+      print('Error fetching contact ID for email: $email - $e');
+      return '';
+    }
+  }
 }
+
