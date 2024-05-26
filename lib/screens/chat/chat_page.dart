@@ -18,7 +18,9 @@ class ScreenChat extends StatefulWidget {
 class _ScreenChatState extends State<ScreenChat> {
   late StompClient _client;
   final TextEditingController _controller = TextEditingController();
-  List<Map<String, dynamic>> messages = [];
+  StreamController<List<Map<String, dynamic>>> _messagesStreamController =
+      StreamController<List<Map<String, dynamic>>>();
+  List<Map<String, dynamic>> _messages = [];
 
   @override
   void initState() {
@@ -44,9 +46,9 @@ class _ScreenChatState extends State<ScreenChat> {
               (receivedMessage['senderId'] == widget.contactId &&
                   receivedMessage['recipientId'] == widget.currentUserId)) {
             setState(() {
-              messages.add(receivedMessage);
-              print(widget.currentUserId);
+              _messages.add(receivedMessage);
             });
+            _messagesStreamController.add(_messages);
           }
         }
       },
@@ -67,8 +69,9 @@ class _ScreenChatState extends State<ScreenChat> {
         body: json.encode(messageJson),
       );
       setState(() {
-        messages.add(messageJson);
+        _messages.add(messageJson);
       });
+      _messagesStreamController.add(_messages);
       _controller.clear();
     }
   }
@@ -93,13 +96,24 @@ class _ScreenChatState extends State<ScreenChat> {
             ),
             const SizedBox(height: 24),
             Expanded(
-              child: ListView.builder(
-                itemCount: messages.length,
-                itemBuilder: (context, index) {
-                  Map<String, dynamic> item = messages[index];
-                  return ListTile(
-                    title: Text(item['content'] ?? 'No content'),
-                    subtitle: Text(item['timestamp'] ?? 'No timestamp'),
+              child: StreamBuilder<List<Map<String, dynamic>>>(
+                stream: _messagesStreamController.stream,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  List<Map<String, dynamic>> messages = snapshot.data!;
+                  return ListView.builder(
+                    itemCount: messages.length,
+                    itemBuilder: (context, index) {
+                      Map<String, dynamic> item = messages[index];
+                      return ListTile(
+                        title: Text(item['content'] ?? 'No content'),
+                        subtitle: Text(item['timestamp'] ?? 'No timestamp'),
+                      );
+                    },
                   );
                 },
               ),
@@ -119,6 +133,7 @@ class _ScreenChatState extends State<ScreenChat> {
   void dispose() {
     _client.deactivate();
     _controller.dispose();
+    _messagesStreamController.close();
     super.dispose();
   }
 }
