@@ -22,6 +22,7 @@ final socketUrl = 'http://localhost:8085/socket';
 
 
 Future<void> main() async {
+  
   await GetStorage.init();
   //socket.onConnect((_) 
   {
