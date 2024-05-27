@@ -68,6 +68,8 @@ class _CameraAppState extends State<CameraApp> {
         print(pred);
 
         output = pred!.first['label'];
+        //TODO
+        sendEmotionMessage(output);
       });
     }
   }
@@ -85,6 +87,7 @@ class _CameraAppState extends State<CameraApp> {
     print('RESULTSSSSSSSS - $res');
   }
 
+  void sendEmotionMessage(String variable) {}
   @override
   Widget build(BuildContext context) {
     if (!controller.value.isInitialized) {
@@ -125,15 +128,12 @@ class _CameraAppState extends State<CameraApp> {
                     shape: const StadiumBorder(),
                     avatar: const Icon(Icons.emoji_emotions_rounded),
                     label: Text(
+                      // output is the variable that hold different emotions
                       output,
                       style: Theme.of(context).textTheme.headlineSmall,
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  // IconButton.filledTonal(
-                  //   onPressed: () {},
-                  //   icon: const Icon(Icons.flip_camera_android_outlined),
-                  // )
                 ],
               ),
             ),
