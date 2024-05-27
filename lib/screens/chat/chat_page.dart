@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:messagerie/ui_detect/detector_widget.dart';
 import 'package:stomp_dart_client/src/stomp_frame.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
@@ -93,6 +94,10 @@ class _ScreenChatState extends State<ScreenChat> {
               ),
             ),
             const SizedBox(height: 24),
+            SizedBox(
+              height: 300,
+              child: DetectorWidget(),
+            ),
             Expanded(
               child: ListView.builder(
                 itemCount: messages.length,

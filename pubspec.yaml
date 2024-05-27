@@ -49,11 +49,12 @@ dependencies:
   google_sign_in: ^5.2.1
   flutter_chat_ui: ^1.6.12
   http: ^1.2.1
-  
 
-
-
-  
+  camera: ^0.11.0
+  video_player: ^2.8.6
+  tflite_flutter: ^0.10.4
+  exif: ^3.3.0
+  image: ^4.2.0
 
 dev_dependencies:
   flutter_test:
