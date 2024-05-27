@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 import 'package:camera/camera.dart';
+import 'package:tflite/tflite.dart';
 
 class ScreenChat extends StatefulWidget {
   final String currentUserId;
@@ -24,6 +26,8 @@ class _ScreenChatState extends State<ScreenChat> {
   String contactUsername = '';
   late CameraController _cameraController;
   late Future<void> _initializeCameraControllerFuture;
+  bool _isDetecting = false;
+  List<dynamic>? _recognitions;
 
   @override
   void initState() {
@@ -44,6 +48,9 @@ class _ScreenChatState extends State<ScreenChat> {
     // Initialize camera controller
     _initializeCameraController();
     _initializeCameraControllerFuture = _initializeCameraController();
+
+    // Load TFLite model
+    _loadModel();
   }
 
   void _onConnectCallback(StompFrame connectFrame) {
@@ -149,12 +156,35 @@ class _ScreenChatState extends State<ScreenChat> {
       // Do something with the taken picture (e.g., upload it or display it)
       if (pickedFile != null) {
         print('Image picked: ${pickedFile.path}');
+        _detectObjects(pickedFile.path);
       } else {
         print('No image picked');
       }
     } catch (e) {
       // Handle errors that occur during camera opening
       print('Error opening camera: $e');
+    }
+  }
+
+  Future<void> _loadModel() async {
+    String? res = await Tflite.loadModel(
+      model: 'assets/vww_96_grayscale_quantized.tflite',
+      labels: 'assets/labels.txt',
+    );
+    print(res);
+  }
+
+  Future<void> _detectObjects(String path) async {
+    if (!_isDetecting) {
+      _isDetecting = true;
+      var recognitions = await Tflite.runModelOnImage(
+        path: path,
+        numResults: 5,
+      );
+      setState(() {
+        _recognitions = recognitions;
+      });
+      _isDetecting = false;
     }
   }
 
@@ -238,6 +268,11 @@ class _ScreenChatState extends State<ScreenChat> {
                 ),
               ],
             ),
+            if (_recognitions != null)
+              ..._recognitions!.map((recog) {
+                return Text(
+                    "${recog['label']} ${(recog['confidence'] * 100).toStringAsFixed(0)}%");
+              }).toList(),
           ],
         ),
       ),
@@ -249,6 +284,7 @@ class _ScreenChatState extends State<ScreenChat> {
     _client.deactivate();
     _controller.dispose();
     _cameraController.dispose(); // Dispose camera controller
+    Tflite.close(); // Close TFLite
     super.dispose();
   }
 }

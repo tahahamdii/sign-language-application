@@ -1,0 +1,4 @@
+0 Anger
+1 intelligent
+2 careful
+3 yes
