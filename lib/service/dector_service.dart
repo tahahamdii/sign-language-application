@@ -156,6 +156,8 @@ class Detector {
       case _Codes.result:
         _isReady = true;
         resultsStream.add(command.args?[0] as Map<String, dynamic>);
+        print(command.args?[0]);
+
       default:
         debugPrint('Detector unrecognized command: ${command.code}');
     }

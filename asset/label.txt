@@ -1,4 +1,4 @@
-0 Not found
-1 One
-2 Two
-3 Three
+0 Anger
+1 intelligent
+2 careful
+3 yes

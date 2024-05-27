@@ -56,8 +56,10 @@ class _DetectorWidgetState extends State<DetectorWidget>
       setState(() {
         _detector = instance;
         _subscription = instance.resultsStream.stream.listen((values) {
+          print("values:" + values.toString());
           setState(() {
             results = values['recognitions'];
+            print("result:" + results.toString());
             stats = values['stats'];
           });
         });
