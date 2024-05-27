@@ -87,7 +87,9 @@ class _CameraAppState extends State<CameraApp> {
     print('RESULTSSSSSSSS - $res');
   }
 
-  void sendEmotionMessage(String variable) {}
+  void sendEmotionMessage(String variable) {
+    
+  }
   @override
   Widget build(BuildContext context) {
     if (!controller.value.isInitialized) {
