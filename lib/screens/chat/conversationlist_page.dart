@@ -23,14 +23,14 @@ class _ConversationlistPageState extends State<ConversationlistPage> {
   final ProfileController profileController = Get.find();
   int _currentIndex = 0;
   ChatController chatController = Get.put(ChatController());
-  late StreamController<List<String>> _contactsStreamController;
-  List<String> contacts = [];
+  late StreamController<List<Contact>> _contactsStreamController;
+  List<Contact> contacts = [];
   late String currentUserId;
 
   @override
   void initState() {
     super.initState();
-    _contactsStreamController = StreamController<List<String>>.broadcast();
+    _contactsStreamController = StreamController<List<Contact>>.broadcast();
     _fetchContacts();
     currentUserId = profileController.currentUserId.value;
     print(currentUserId); // Fetch current user ID when the page initializes
@@ -44,12 +44,12 @@ class _ConversationlistPageState extends State<ConversationlistPage> {
 
   Future<void> _fetchContacts() async {
     try {
-      final response =
-          await http.get(Uri.parse('http://localhost:8080/api/contacts/get'));
+      final response = await http.get(
+          Uri.parse('http://localhost:8080/api/users/contacts/${widget.id}'));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         setState(() {
-          contacts = data.map((contact) => contact['email'] as String).toList();
+          contacts = data.map((contact) => Contact.fromJson(contact)).toList();
         });
         _contactsStreamController.add(contacts);
       } else {
@@ -60,9 +60,26 @@ class _ConversationlistPageState extends State<ConversationlistPage> {
     }
   }
 
+  Future<void> _deleteContact(String email) async {
+    try {
+      final response = await http.delete(
+          Uri.parse('http://localhost:8080/api/users/contact?email=$email'));
+      if (response.statusCode == 200) {
+        setState(() {
+          contacts.removeWhere((contact) => contact.email == email);
+        });
+        _contactsStreamController.add(contacts);
+      } else {
+        print('Failed to delete contact');
+      }
+    } catch (e) {
+      print('Error deleting contact: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    print(widget.id); // Print widget ID (currentUserId
+    print(widget.id); // Print widget ID (currentUserId)
     return Scaffold(
       appBar: AppBar(
         title: Text("Conversation List"),
@@ -82,7 +99,7 @@ class _ConversationlistPageState extends State<ConversationlistPage> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Get.to(NewMessagePage());
+                    Get.to(NewMessagePage(currentUserId: currentUserId));
                   },
                   child: Container(
                     padding:
@@ -134,7 +151,7 @@ class _ConversationlistPageState extends State<ConversationlistPage> {
             ),
           ),
           Expanded(
-            child: StreamBuilder<List<String>>(
+            child: StreamBuilder<List<Contact>>(
               stream: _contactsStreamController.stream,
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
@@ -142,14 +159,15 @@ class _ConversationlistPageState extends State<ConversationlistPage> {
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
                       return ChatUserWidget(
-                        text: snapshot.data![index],
-                        secondaryText: "Tap to view messages",
+                        name: snapshot.data![index].name,
+                        email: snapshot.data![index].email,
                         image:
                             "asset/images/avatar.png", // You can change this to match your design
                         time: "Now", // You can change this to match your design
-                        email: snapshot.data![index], // Pass email
                         currentUserId: widget.id, // Pass currentUserId
                         onTap: () {}, // Add an empty callback for now
+                        onDelete: () => _deleteContact(
+                            snapshot.data![index].email), // Add delete callback
                       );
                     },
                   );
@@ -204,22 +222,36 @@ class _ConversationlistPageState extends State<ConversationlistPage> {
   }
 }
 
+class Contact {
+  final String name;
+  final String email;
+
+  Contact({required this.name, required this.email});
+
+  factory Contact.fromJson(Map<String, dynamic> json) {
+    return Contact(
+      name: json['name'],
+      email: json['email'],
+    );
+  }
+}
+
 class ChatUserWidget extends StatelessWidget {
-  final String text;
-  final String secondaryText;
+  final String name;
+  final String email;
   final String image;
   final String time;
   final VoidCallback onTap;
-  final String email; // Add email parameter
+  final VoidCallback onDelete; // Add delete callback
   final String currentUserId; // Add currentUserId parameter
 
   const ChatUserWidget({
-    required this.text,
-    required this.secondaryText,
+    required this.name,
+    required this.email,
     required this.image,
     required this.time,
     required this.onTap,
-    required this.email, // Update constructor
+    required this.onDelete, // Update constructor
     required this.currentUserId, // Update constructor
   });
 
@@ -242,9 +274,18 @@ class ChatUserWidget extends StatelessWidget {
         leading: CircleAvatar(
           backgroundImage: AssetImage(image),
         ),
-        title: Text(text),
-        subtitle: Text(secondaryText),
-        trailing: Text(time),
+        title: Text(name),
+        subtitle: Text(email),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(time),
+            IconButton(
+              icon: Icon(Icons.delete, color: Colors.red),
+              onPressed: onDelete, // Handle delete
+            ),
+          ],
+        ),
       ),
     );
   }

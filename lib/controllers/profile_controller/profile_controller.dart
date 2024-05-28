@@ -22,6 +22,7 @@ class ProfileController extends GetxController {
   TextEditingController userNameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
   TextEditingController birthdayController = TextEditingController();
   TextEditingController confirmpasswordController = TextEditingController();
   TextEditingController oldPasswordController = TextEditingController();

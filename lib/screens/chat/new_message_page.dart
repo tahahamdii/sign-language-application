@@ -4,23 +4,28 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:messagerie/controllers/profile_controller/chat_controller.dart';
 import 'package:messagerie/controllers/profile_controller/profile_controller.dart';
-import 'package:messagerie/screens/chat/conversationlist_page%20copy.dart';
+import 'package:messagerie/screens/chat/conversationlist_page.dart';
 
 class NewMessagePage extends GetView<ProfileController> {
-  NewMessagePage({super.key});
+  final String currentUserId;
+  NewMessagePage({Key? key, required this.currentUserId}) : super(key: key);
   final ChatController chatController = Get.put(ChatController());
 
-  Future<void> sendMessage() async {
+  Future<void> addContact() async {
     final String recipientEmail = controller.emailController.text;
+    final String recipientName = controller.nameController.text; // Get name
     final int randomId =
         DateTime.now().millisecondsSinceEpoch; // Generate a random ID
 
     final Map<String, dynamic> payload = {
       'id': randomId,
+      'name': recipientName, // Include name in payload
       'email': recipientEmail,
+      'currentUserId': currentUserId,
     };
 
-    final Uri uri = Uri.parse('http://localhost:8080/api/contacts/add');
+    final Uri uri =
+        Uri.parse('http://localhost:8080/api/users/addContacts/$currentUserId');
 
     try {
       final http.Response response = await http.post(
@@ -32,14 +37,15 @@ class NewMessagePage extends GetView<ProfileController> {
       );
 
       if (response.statusCode == 200) {
-        print('Message sent successfully');
+        print('Contact added successfully');
         // Optionally, you can navigate back or show a success message here
+        Get.to(ConversationlistPage(id: currentUserId));
       } else {
-        print('Failed to send message');
+        print('Failed to add contact');
         // Handle error, show error message, etc.
       }
     } catch (e) {
-      print('Error sending message: $e');
+      print('Error adding contact: $e');
     }
   }
 
@@ -47,7 +53,7 @@ class NewMessagePage extends GetView<ProfileController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('New Message'),
+        title: const Text('Add Contact'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -55,21 +61,21 @@ class NewMessagePage extends GetView<ProfileController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
-              controller: controller.emailController,
-              decoration: const InputDecoration(labelText: 'Recipient Email'),
+              controller: controller.nameController,
+              decoration: const InputDecoration(labelText: 'Contact Name'),
             ),
             const SizedBox(height: 16.0),
             TextField(
-              controller: controller.messageController,
-              decoration: const InputDecoration(labelText: 'Message'),
+              controller: controller.emailController,
+              decoration: const InputDecoration(labelText: 'Contact Email'),
             ),
             const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () async {
-                await sendMessage();
-                Get.to(ConversationlistPage());
+                await addContact();
               },
-              child: const Text('Send', style: TextStyle(color: Colors.black)),
+              child: const Text('Add Contact',
+                  style: TextStyle(color: Colors.black)),
             ),
           ],
         ),
@@ -77,55 +83,3 @@ class NewMessagePage extends GetView<ProfileController> {
     );
   }
 }
-
-
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-// import 'package:messagerie/controllers/profile_controller/chat_controller.dart';
-// import 'package:messagerie/controllers/profile_controller/profile_controller.dart';
-// import 'package:messagerie/screens/chat/chat_page.dart';
-
-// class NewMessagePage extends GetView<ProfileController> {
-
-//   NewMessagePage({Key? key}) : super(key: key);
-//   final ChatController chatController = Get.put(ChatController());
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('New Message'),
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             TextField(
-//               controller: controller.emailController,
-//               decoration: const InputDecoration(labelText: 'Recipient Email'),
-//             ),
-//             const SizedBox(height: 16.0),
-//             TextField(
-//               controller: controller.messageController,
-//               decoration: const InputDecoration(labelText: 'Message'),
-//             ),
-//             const SizedBox(height: 16.0),
-//             ElevatedButton(
-//               onPressed: () {
-//                 print("send msg---------------------------------------");
-//                 controller.getUserByEmail();
-//                 chatController.sendMessage(controller.messageController.text, controller.getUserModel!.id.toString());
-//                 // Create channel and navigate to chat screen
-//                // chatController.createChannel(controller.getUserModel!.id.toString());
-//                 Get.to(ScreenChat());
-//               },
-//               child: const Text('Send', style: TextStyle(color: Colors.black),),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-

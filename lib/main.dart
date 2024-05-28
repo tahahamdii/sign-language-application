@@ -21,8 +21,8 @@ final socketUrl = 'http://localhost:8085/socket';
 late List<CameraDescription> cameras;
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  cameras = await availableCameras();
+  // WidgetsFlutterBinding.ensureInitialized();
+  // cameras = await availableCameras();
   await GetStorage.init();
   //socket.onConnect((_)
   {
