@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:messagerie/chat_screen.dart';
 import 'package:messagerie/core/helperes/app_validators.dart';
 import 'package:messagerie/core/networking/api_constants.dart';
@@ -31,6 +32,7 @@ class ProfileController extends GetxController {
   TextEditingController resetCodeController = TextEditingController();
 
   final GoogleSignIn googleSignIn = GoogleSignIn();
+  RxString imageUrl = RxString('');
 
   final keyForm = GlobalKey<FormState>();
   bool passwordVisible = false;
@@ -40,6 +42,12 @@ class ProfileController extends GetxController {
   DioSingleton dioSingleton = DioSingleton();
 
   RxString currentUserId = "".obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    getUserImage();
+  }
 
   void setCurrentUserId(String userId) {
     currentUserId.value = userId;
@@ -378,4 +386,66 @@ class ProfileController extends GetxController {
   }
 
   void signOut() {}
+
+  Future<void> getUserImage() async {
+    String currentUserId = AppStorge.readId().toString();
+    String apiUrl = 'http://localhost:8080/api/users/image/$currentUserId';
+
+    try {
+      var response = await http.get(Uri.parse(apiUrl));
+      if (response.statusCode == 200) {
+        imageUrl.value = response.body;
+        print(imageUrl);
+      } else {
+        print('Failed to fetch image URL');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Future<void> uploadImage(BuildContext context, PickedFile pickedFile) async {
+    String currentUserId = AppStorge.readId().toString();
+
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('http://localhost:8080/cloudinary/upload/$currentUserId'),
+    );
+
+    // Read the file as bytes
+    List<int> bytes = await pickedFile.readAsBytes();
+
+    // Create a MultipartFile from bytes
+    var multipartFile = http.MultipartFile.fromBytes(
+      'multipartFile',
+      bytes,
+      filename: pickedFile.path.split('/').last,
+    );
+
+    // Add the MultipartFile to the request
+    request.files.add(multipartFile);
+
+    try {
+      var response = await request.send();
+      if (response.statusCode == 200) {
+        // Image uploaded successfully
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Image uploaded successfully!'),
+          ),
+        );
+        // Fetch the updated image URL after uploading
+        getUserImage();
+      } else {
+        // Error uploading image
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to upload image!'),
+          ),
+        );
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 }

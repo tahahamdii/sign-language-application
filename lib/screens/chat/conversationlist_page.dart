@@ -51,6 +51,7 @@ class _ConversationlistPageState extends State<ConversationlistPage> {
         setState(() {
           contacts = data.map((contact) => Contact.fromJson(contact)).toList();
         });
+        fetchContactsImages(); // Call function to fetch images
         _contactsStreamController.add(contacts);
       } else {
         print('Failed to fetch contacts');
@@ -60,20 +61,40 @@ class _ConversationlistPageState extends State<ConversationlistPage> {
     }
   }
 
-  Future<void> _deleteContact(String email) async {
-    try {
-      final response = await http.delete(
-          Uri.parse('http://localhost:8080/api/users/contact?email=$email'));
-      if (response.statusCode == 200) {
-        setState(() {
-          contacts.removeWhere((contact) => contact.email == email);
-        });
-        _contactsStreamController.add(contacts);
-      } else {
-        print('Failed to delete contact');
+  Future<void> fetchContactsImages() async {
+    for (Contact contact in contacts) {
+      try {
+        final response = await http.get(Uri.parse(
+            'http://localhost:8080/api/users/imageByEmail/${contact.email}'));
+        if (response.statusCode == 200) {
+          contact.imageUrl = response.body;
+        } else {
+          print('Failed to fetch image for email: ${contact.email}');
+        }
+      } catch (e) {
+        print('Error fetching image for email: ${contact.email} - $e');
       }
-    } catch (e) {
-      print('Error deleting contact: $e');
+    }
+    _contactsStreamController
+        .add(contacts); // Update the stream with image URLs
+  }
+
+  Future<void> _deleteContact(String email) async {
+    for (Contact contact in contacts) {
+      try {
+        final response = await http.delete(Uri.parse(
+            'http://localhost:8080/api/users/removeContacts/${widget.id}/${contact.email}'));
+        if (response.statusCode == 200) {
+          setState(() {
+            contacts.removeWhere((contact) => contact.email == email);
+          });
+          _contactsStreamController.add(contacts);
+        } else {
+          print('Failed to delete contact');
+        }
+      } catch (e) {
+        print('Error deleting contact: $e');
+      }
     }
   }
 
@@ -161,8 +182,8 @@ class _ConversationlistPageState extends State<ConversationlistPage> {
                       return ChatUserWidget(
                         name: snapshot.data![index].name,
                         email: snapshot.data![index].email,
-                        image:
-                            "asset/images/avatar.png", // You can change this to match your design
+                        image: snapshot.data![index]
+                            .imageUrl, // Use image URL from contact
                         time: "Now", // You can change this to match your design
                         currentUserId: widget.id, // Pass currentUserId
                         onTap: () {}, // Add an empty callback for now
@@ -225,8 +246,9 @@ class _ConversationlistPageState extends State<ConversationlistPage> {
 class Contact {
   final String name;
   final String email;
+  String? imageUrl;
 
-  Contact({required this.name, required this.email});
+  Contact({required this.name, required this.email, this.imageUrl});
 
   factory Contact.fromJson(Map<String, dynamic> json) {
     return Contact(
@@ -239,11 +261,11 @@ class Contact {
 class ChatUserWidget extends StatelessWidget {
   final String name;
   final String email;
-  final String image;
   final String time;
   final VoidCallback onTap;
   final VoidCallback onDelete; // Add delete callback
   final String currentUserId; // Add currentUserId parameter
+  final String? image;
 
   const ChatUserWidget({
     required this.name,
@@ -272,7 +294,9 @@ class ChatUserWidget extends StatelessWidget {
       },
       child: ListTile(
         leading: CircleAvatar(
-          backgroundImage: AssetImage(image),
+          backgroundImage: image != null
+              ? NetworkImage(image!)
+              : AssetImage('assets/default_avatar.png') as ImageProvider,
         ),
         title: Text(name),
         subtitle: Text(email),
