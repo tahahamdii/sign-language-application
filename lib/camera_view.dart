@@ -1,25 +1,87 @@
+import 'dart:convert';
+
 import 'package:camera/camera.dart';
 import 'package:messagerie/main.dart';
 import 'package:flutter/material.dart';
+import 'package:stomp_dart_client/stomp_dart_client.dart';
 import 'package:tflite_v2/tflite_v2.dart';
+import 'dart:async';
 
 /// CameraApp is the Main Application.
 class CameraApp extends StatefulWidget {
   /// Default Constructor
-  const CameraApp({super.key});
+  const CameraApp({
+    super.key,
+    required this.currentUserId,
+    required this.contactId,
+  });
+
+  final String currentUserId;
+  final String contactId;
 
   @override
   State<CameraApp> createState() => _CameraAppState();
 }
 
 class _CameraAppState extends State<CameraApp> {
+  late StompClient _client;
+
   CameraImage? cameraImage;
   late CameraController controller;
+  String aux = '';
   String output = '';
   CameraDescription cameraId = cameras[0];
+  Timer? timer;
+  void _sendMessage(String messageContent) {
+    if (messageContent.isNotEmpty) {
+      final messageJson = {
+        'content': messageContent,
+        'senderId': widget.currentUserId,
+        'recipientId': widget.contactId,
+        'timestamp': DateTime.now().toIso8601String(),
+      };
+      _client.send(
+        destination: '/app/chatt',
+        body: json.encode(messageJson),
+      );
+      setState(() {
+        messages.add(messageJson);
+      });
+    }
+  }
+
+  List<Map<String, dynamic>> messages = [];
+
+  void _onConnectCallback(StompFrame connectFrame) {
+    _client.subscribe(
+      destination: '/user/${widget.currentUserId}/queue/messages',
+      callback: (StompFrame frame) {
+        if (frame.body != null) {
+          Map<String, dynamic> receivedMessage = json.decode(frame.body!);
+          if ((receivedMessage['senderId'] == widget.currentUserId &&
+                  receivedMessage['recipientId'] == widget.contactId) ||
+              (receivedMessage['senderId'] == widget.contactId &&
+                  receivedMessage['recipientId'] == widget.currentUserId)) {
+            setState(() {
+              messages.add(receivedMessage);
+            });
+          }
+        }
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
+    _client = StompClient(
+      config: StompConfig(
+        url: 'ws://192.168.56.1:8080/socket',
+        onConnect: _onConnectCallback,
+        onWebSocketError: (dynamic error) => print(error.toString()),
+      ),
+    );
+    _client.activate();
     loadModel();
     controller = CameraController(cameraId, ResolutionPreset.medium);
     controller.initialize().then((_) {
@@ -27,9 +89,14 @@ class _CameraAppState extends State<CameraApp> {
         return;
       }
       setState(() {
-        controller.startImageStream(
-            (imageStream) => {cameraImage = imageStream, runModel()});
+        controller.startImageStream((imageStream) {
+          cameraImage = imageStream;
+        });
       });
+
+      // Start processing the output every 3 seconds
+      timer =
+          Timer.periodic(const Duration(seconds: 3), (Timer t) => runModel());
     }).catchError((Object e) {
       if (e is CameraException) {
         switch (e.code) {
@@ -47,6 +114,7 @@ class _CameraAppState extends State<CameraApp> {
   @override
   void dispose() {
     controller.dispose();
+    timer?.cancel();
     super.dispose();
   }
 
@@ -63,13 +131,21 @@ class _CameraAppState extends State<CameraApp> {
           threshold: .1,
           asynch: true);
 
-      setState(() {
-        print("**************************************************************");
-        print(pred);
+      if (pred != null && pred.isNotEmpty) {
+        String newOutput = pred.first['label'];
+        processOutput(newOutput);
+      }
+    }
+  }
 
-        output = pred!.first['label'];
-        //TODO
-        sendEmotionMessage(output);
+  void processOutput(String detectedEmotion) {
+    if (detectedEmotion != 'Neutral') {
+      setState(() {
+        output = detectedEmotion;
+        if (aux != output) {
+          sendEmotionMessage(output);
+          aux = output;
+        }
       });
     }
   }
@@ -88,8 +164,9 @@ class _CameraAppState extends State<CameraApp> {
   }
 
   void sendEmotionMessage(String variable) {
-    
+    _sendMessage(variable);
   }
+
   @override
   Widget build(BuildContext context) {
     if (!controller.value.isInitialized) {
@@ -102,7 +179,6 @@ class _CameraAppState extends State<CameraApp> {
         bottom: true,
         child: Column(
           mainAxisSize: MainAxisSize.min,
-
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           // alignment: AlignmentDirectional.bottomCenter,
@@ -130,7 +206,7 @@ class _CameraAppState extends State<CameraApp> {
                     shape: const StadiumBorder(),
                     avatar: const Icon(Icons.emoji_emotions_rounded),
                     label: Text(
-                      // output is the variable that hold different emotions
+                      // output is the variable that holds different emotions
                       output,
                       style: Theme.of(context).textTheme.headlineSmall,
                       textAlign: TextAlign.center,
