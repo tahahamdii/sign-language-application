@@ -197,7 +197,10 @@ class _ScreenChatState extends State<ScreenChat> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const CameraApp(),
+                            builder: (context) => CameraApp(
+                              currentUserId: widget.currentUserId,
+                              contactId: widget.contactId,
+                            ),
                           ));
                     },
                     icon: const Icon(Icons.camera_rounded),

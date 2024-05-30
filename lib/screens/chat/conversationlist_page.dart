@@ -214,10 +214,7 @@ class _ConversationlistPageState extends State<ConversationlistPage> {
               break;
             case 1:
               // Navigate to ScreenChat with currentUserId and contactId
-              Get.to(ScreenChat(
-                currentUserId: currentUserId,
-                contactId: "currentUserId",
-              ));
+
               break;
             case 2:
               Get.to(UpdateProfilPage());
@@ -299,7 +296,6 @@ class ChatUserWidget extends StatelessWidget {
               : AssetImage('assets/default_avatar.png') as ImageProvider,
         ),
         title: Text(name),
-        subtitle: Text(email),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

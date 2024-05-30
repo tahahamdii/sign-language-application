@@ -8,6 +8,8 @@ import 'package:messagerie/screens/profile/signin_page.dart';
 import 'package:messagerie/screens/profile/update_profil_page.dart';
 
 class ProfilePage extends GetView<ProfileController> {
+  final ProfileController controller = Get.put(ProfileController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -117,8 +119,10 @@ class ProfilePage extends GetView<ProfileController> {
         children: [
           CircleAvatar(
             radius: 50.0,
-            backgroundImage: AssetImage(
-                'asset/images/avatarr.jpg'), // Mettez à jour le chemin si nécessaire
+            backgroundImage: controller.imageUrl.value != null
+                ? NetworkImage(controller.imageUrl.value!)
+                : AssetImage('assets/default_avatar.png')
+                    as ImageProvider, // Mettez à jour le chemin si nécessaire
           ),
           SizedBox(width: 20.0),
           Column(

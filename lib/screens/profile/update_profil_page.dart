@@ -154,7 +154,7 @@ class UpdateProfilPage extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.purple,
+        selectedItemColor: Colors.grey.shade600,
         unselectedItemColor: Colors.grey.shade600,
         selectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
         unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
@@ -163,15 +163,11 @@ class UpdateProfilPage extends StatelessWidget {
         onTap: (index) {
           switch (index) {
             case 0:
-              // Get.to(ConversationlistPage());
+              Get.to(ConversationlistPage(
+                id: controller.currentUserId.value,
+              ));
               break;
             case 1:
-              Get.to(
-                ScreenChat(
-                  currentUserId: "specificChatId",
-                  contactId: "currentUserId",
-                ),
-              );
               break;
             case 2:
               Get.to(UpdateProfilPage());
