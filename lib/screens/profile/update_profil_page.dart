@@ -62,8 +62,7 @@ class UpdateProfilPage extends StatelessWidget {
                           radius: 55,
                           backgroundImage: controller.imageUrl.value != null
                               ? NetworkImage(controller.imageUrl.value!)
-                              : AssetImage('assets/default_avatar.png')
-                                  as ImageProvider,
+                              : AssetImage('avatarr.png') as ImageProvider,
                         ),
                       );
                     }),

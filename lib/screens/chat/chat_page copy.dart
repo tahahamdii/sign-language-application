@@ -351,16 +351,7 @@
 //     );
 //   }
 
-//   void _openCamera() async {
-//     List<File>? res = await Navigator.push(
-//       context,
-//       MaterialPageRoute(
-//         builder: (context) => const WhatsappCamera(),
-//       ),
-//     );
-//     if (res != null) files.value = res;
-//   }
-// }
+
 
 // class Message {
 //   final String content;
