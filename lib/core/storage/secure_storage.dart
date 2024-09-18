@@ -53,4 +53,6 @@ class SecureStorage {
     var readData =   box.read( key);
     return readData;
   }
+
+  static void deleteAll() {}
 }

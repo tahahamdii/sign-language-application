@@ -15,14 +15,14 @@ class SignupPage extends GetView<ProfileController> {
     return Scaffold(
       body: Stack(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage("asset/images/img.jpg"),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
+          // Container(
+          //   decoration: BoxDecoration(
+          //     image: DecorationImage(
+          //       image: AssetImage("assets/images/img.jpg"),
+          //       fit: BoxFit.cover,
+          //     ),
+          //   ),
+          // ),
           Center(
             child: SingleChildScrollView(
               child: Padding(
@@ -30,7 +30,7 @@ class SignupPage extends GetView<ProfileController> {
                 child: Container(
                   padding: const EdgeInsets.all(20), // Ajouter un padding interne
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.8),
+                  color: Color.fromARGB(255, 212, 83, 175).withOpacity(0.3),
                     borderRadius: BorderRadius.circular(40), // Coins arrondis
                   ),
                   constraints: BoxConstraints(maxWidth: 400), // Largeur maximale
@@ -42,6 +42,7 @@ class SignupPage extends GetView<ProfileController> {
                       const Text(
                         "Sign up",
                         style: TextStyle(
+                          color: Color(0xFF060B8A),
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
                         ),
@@ -143,7 +144,8 @@ class SignupPage extends GetView<ProfileController> {
                             child: Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(25),
-                                color: Colors.purple,
+                                  color: Color(0xFF060B8A),
+
                               ),
                               child: TextButton(
                                 onPressed: () {
@@ -161,44 +163,44 @@ class SignupPage extends GetView<ProfileController> {
                         ],
                       ),
                       const SizedBox(height: 20), // Espacement entre le bouton et le texte "Or"
-                      Text(
-                        "Or",
-                        textAlign: TextAlign.center,
-                      ),
-                      Container(
-                        height: 45,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(25),
-                          border: Border.all(
-                            color: Colors.purple,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.white.withOpacity(0.5),
-                              spreadRadius: 1,
-                              blurRadius: 1,
-                              offset: const Offset(0, 1),
-                            ),
-                          ],
-                        ),
-                        child: TextButton(
-                          onPressed: () {},
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const SizedBox(width: 18),
-                              const Text(
-                                "Sign In with Google",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.purple,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20), // Espacement entre le bouton "Sign In with Google" et le texte "Already have an account?"
+                      // Text(
+                      //   "Or",
+                      //   textAlign: TextAlign.center,
+                      // ),
+                      // Container(
+                      //   height: 45,
+                      //   decoration: BoxDecoration(
+                      //     borderRadius: BorderRadius.circular(25),
+                      //     border: Border.all(
+                      //       color: Colors.purple,
+                      //     ),
+                      //     // boxShadow: [
+                      //     //   // BoxShadow(
+                      //     //   //   color: Colors.white.withOpacity(0.5),
+                      //     //   //   spreadRadius: 1,
+                      //     //   //   blurRadius: 1,
+                      //     //   //   offset: const Offset(0, 1),
+                      //     //   // ),
+                      //     // ],
+                      //   ),
+                        // child: TextButton(
+                        //   onPressed: () {},
+                        //   child: Row(
+                        //     mainAxisAlignment: MainAxisAlignment.center,
+                        //     children: [
+                        //       const SizedBox(width: 18),
+                        //       const Text(
+                        //         "Sign In with Google",
+                        //         style: TextStyle(
+                        //           fontSize: 16,
+                        //           color: Colors.purple,
+                        //         ),
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
+                      //),
+                      const SizedBox(height: 5), // Espacement entre le bouton "Sign In with Google" et le texte "Already have an account?"
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
@@ -209,7 +211,8 @@ class SignupPage extends GetView<ProfileController> {
                             },
                             child: const Text(
                               "Login",
-                              style: TextStyle(color: Colors.purple),
+                              style: TextStyle(   color: Color(0xFF060B8A),
+                                ),    
                             ),
                           )
                         ],

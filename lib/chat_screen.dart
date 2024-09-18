@@ -5,7 +5,7 @@
 // import 'dart:convert';
 
 // class ChatScreen extends StatefulWidget {
-//   get senderId => AppStorge.readId( );
+//   get senderId => AppStorage.readId( );
   
 //   get recipientId => '';
 
@@ -26,13 +26,13 @@
 //   }
 
 //   Future<void> fetchUserId() async {
-//     userId = AppStorge.readId() ?? ''; // Lire l'ID de l'utilisateur depuis AppStorage
+//     userId = AppStorage.readId() ?? ''; // Lire l'ID de l'utilisateur depuis AppStorage
 //   }
 
 //   Future<void> sendMessage(String text, String recipientId) async {
 //     // String channelId = await checkChannelExistence(userId, recipientId);
 //     final response = await http.post(
-//       Uri.parse('http://localhost:8080/chats'),
+//       Uri.parse('http://192.168.1.45:8080/chats'),
 //       headers: <String, String>{
 //         'Content-Type': 'application/json',
 //       },
@@ -54,7 +54,7 @@
 
 //  // Méthode pour récupérer les messages de l'utilisateur actuellement connecté
 //   Future<void> fetchMessages() async {
-//     final response = await http.get(Uri.parse('http://localhost:8080/chats?userId=$userId'));
+//     final response = await http.get(Uri.parse('http://192.168.1.45:8080/chats?userId=$userId'));
 //     if (response.statusCode == 200) {
 //       final List<dynamic> responseData = jsonDecode(response.body);
 //       setState(() {
@@ -67,7 +67,7 @@
 
 //   // Future<void> fetchMessages() async {
 //   //   final response = await http.get(Uri.parse(
-//   //       'http://localhost:8080/chats/conversation/${widget.senderId}/${widget.recipientId}'));
+//   //       'http://192.168.1.45:8080/chats/conversation/${widget.senderId}/${widget.recipientId}'));
 //   //   if (response.statusCode == 200) {
 //   //     final List<dynamic> responseData = jsonDecode(response.body);
 //   //     setState(() {

@@ -198,7 +198,7 @@
 //                             final message = controller
 //                                 .allMessagesModel!.data![index].message;
 //                             return Align(
-//                               alignment: message!.senderId == AppStorge.readId()
+//                               alignment: message!.senderId == AppStorage.readId()
 //                                   ? Alignment.topLeft
 //                                   : Alignment.topRight,
 //                               child: Container(
@@ -207,18 +207,18 @@
 //                                 padding: const EdgeInsets.all(10),
 //                                 decoration: BoxDecoration(
 //                                   color: message.senderId ==
-//                                           AppStorge.readId()
+//                                           AppStorage.readId()
 //                                       ? Color.fromARGB(255, 128, 108, 207)
 //                                       : const Color.fromARGB(255, 174, 172, 172),
 //                                   borderRadius: BorderRadius.only(
 //                                     topLeft: const Radius.circular(12),
 //                                     topRight: const Radius.circular(12),
 //                                     bottomLeft: message.senderId ==
-//                                             AppStorge.readId()
+//                                             AppStorage.readId()
 //                                         ? const Radius.circular(0)
 //                                         : const Radius.circular(18),
 //                                     bottomRight: message.senderId ==
-//                                             AppStorge.readId()
+//                                             AppStorage.readId()
 //                                         ? const Radius.circular(18)
 //                                         : const Radius.circular(0),
 //                                   ),
@@ -227,7 +227,7 @@
 //                                   message.message!,
 //                                   style: TextStyle(
 //                                     color: message.senderId ==
-//                                             AppStorge.readId()
+//                                             AppStorage.readId()
 //                                         ? Colors.white
 //                                         : Colors.black,
 //                                   ),
@@ -351,16 +351,7 @@
 //     );
 //   }
 
-//   void _openCamera() async {
-//     List<File>? res = await Navigator.push(
-//       context,
-//       MaterialPageRoute(
-//         builder: (context) => const WhatsappCamera(),
-//       ),
-//     );
-//     if (res != null) files.value = res;
-//   }
-// }
+
 
 // class Message {
 //   final String content;

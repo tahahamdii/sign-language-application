@@ -24,21 +24,24 @@ class _EnterCodePageState extends State<EnterCodePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Enter Verification Code'),
+        title: Text('Enter Verification Code',
+        style: TextStyle(color: Colors.white)),
+         backgroundColor: Color.fromARGB(255, 16, 9, 74),
+        iconTheme: IconThemeData(color: Colors.white), 
       ),
       body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("asset/images/img.jpg"),
-            fit: BoxFit.cover,
-          ),
-        ),
+        // decoration: BoxDecoration(
+        //   image: DecorationImage(
+        //     image: AssetImage("asset/images/img.jpg"),
+        //     fit: BoxFit.cover,
+        //   ),
+        // ),
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+              color: Color.fromARGB(255, 212, 83, 175).withOpacity(0.3),
                 borderRadius: BorderRadius.circular(20.0),
               ),
               padding: const EdgeInsets.all(24.0),
@@ -49,7 +52,10 @@ class _EnterCodePageState extends State<EnterCodePage> {
                   children: [
                     Text(
                       'Please enter the verification code sent to your email',
-                      style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                       color: Color(0xFF060B8A),
+
+                        fontSize: 24.0, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 20.0),
@@ -77,7 +83,7 @@ class _EnterCodePageState extends State<EnterCodePage> {
                                 borderRadius: BorderRadius.circular(18),
                               ),
                               filled: true,
-                              fillColor: Colors.purple.withOpacity(0.1),
+                              fillColor: Color.fromARGB(255, 241, 232, 243),
                             ),
                           ),
                         ),
@@ -102,7 +108,7 @@ class _EnterCodePageState extends State<EnterCodePage> {
                                 borderRadius: BorderRadius.circular(18),
                               ),
                               filled: true,
-                              fillColor: Colors.purple.withOpacity(0.1),
+                              fillColor: Color.fromARGB(255, 241, 232, 243),
                             ),
                           ),
                         ),
@@ -127,7 +133,7 @@ class _EnterCodePageState extends State<EnterCodePage> {
                                 borderRadius: BorderRadius.circular(18),
                               ),
                               filled: true,
-                              fillColor: Colors.purple.withOpacity(0.1),
+                              fillColor:Color.fromARGB(255, 241, 232, 243),
                             ),
                           ),
                         ),
@@ -152,7 +158,7 @@ class _EnterCodePageState extends State<EnterCodePage> {
                                 borderRadius: BorderRadius.circular(18),
                               ),
                               filled: true,
-                              fillColor: Colors.purple.withOpacity(0.1),
+                              fillColor: Color.fromARGB(255, 241, 232, 243),
                             ),
                           ),
                         ),
@@ -165,7 +171,7 @@ class _EnterCodePageState extends State<EnterCodePage> {
                           profileController.resetCodeController.text = "${_controller1.text}${_controller2.text}${_controller3.text}${_controller4.text}";
                           print("resetcode=${profileController.resetCodeController.text}");
 
-                          AppStorge.saveresetCode("${profileController.resetCodeController.text}");
+                          AppStorage.saveResetCode("${profileController.resetCodeController.text}");
 
                           Navigator.push(
                             context,
