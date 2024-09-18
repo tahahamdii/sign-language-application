@@ -1,8 +1,7 @@
-import 'dart:convert';
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messagerie/chat_screen.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:messagerie/core/helperes/app_validators.dart';
 import 'package:messagerie/core/networking/api_constants.dart';
 import 'package:messagerie/core/networking/dio_singleton.dart';
@@ -10,18 +9,18 @@ import 'package:messagerie/core/storage/app_storage.dart';
 import 'package:messagerie/models/data_user_model.dart';
 import 'package:messagerie/models/get_user_model.dart';
 import 'package:messagerie/models/user_model.dart';
-import 'package:messagerie/screens/chat/chat_page.dart';
 import 'package:messagerie/screens/chat/conversationlist_page.dart';
 import 'package:messagerie/screens/profile/code_page.dart';
-import 'package:messagerie/screens/profile/signin_page.dart';
-import 'package:messagerie/screens/profile/update_profil_page.dart';
+
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
+import 'package:messagerie/screens/profile/signin_page.dart';
 
 class ProfileController extends GetxController {
   TextEditingController userNameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
   TextEditingController birthdayController = TextEditingController();
   TextEditingController confirmpasswordController = TextEditingController();
   TextEditingController oldPasswordController = TextEditingController();
@@ -30,6 +29,7 @@ class ProfileController extends GetxController {
   TextEditingController resetCodeController = TextEditingController();
 
   final GoogleSignIn googleSignIn = GoogleSignIn();
+  RxString imageUrl = RxString('');
 
   final keyForm = GlobalKey<FormState>();
   bool passwordVisible = false;
@@ -39,6 +39,14 @@ class ProfileController extends GetxController {
   DioSingleton dioSingleton = DioSingleton();
 
   RxString currentUserId = "".obs;
+
+  get contactController => null;
+
+  @override
+  void onInit() {
+    super.onInit();
+    getUserImage();
+  }
 
   void setCurrentUserId(String userId) {
     currentUserId.value = userId;
@@ -133,6 +141,19 @@ class ProfileController extends GetxController {
       initialDate: DateTime.now(),
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            primaryColor: Color.fromARGB(255, 222, 53, 205), // Couleur principale du calendrier
+            hintColor: Colors.blueAccent, // Couleur d'accentuation du calendrier
+            colorScheme: ColorScheme.light(primary: Color.fromARGB(255, 2, 27, 78)), // Couleur de la barre supérieure du calendrier
+            buttonTheme: ButtonThemeData(
+              textTheme: ButtonTextTheme.primary, // Couleur du texte des boutons
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null) {
       birthdayController.text = picked.toLocal().toString().split(' ')[0];
@@ -151,20 +172,19 @@ class ProfileController extends GetxController {
           await dioSingleton.dio.post(ApiConstants.singinUrl, data: data);
       userModel = UserLoginModel.fromJson(response.data);
       if (userModel != null) {
-        AppStorge.saveId("${userModel!.userDetails!.id}");
+        AppStorage.saveId("${userModel!.userDetails!.id}");
         setCurrentUserId(userModel!.userDetails!.id.toString());
         print(currentUserId.value);
-        AppStorge.saveUsername("${userModel!.userDetails!.username}");
-        AppStorge.saveEmail("${userModel!.userDetails!.email}");
-        print(AppStorge.readId());
+        AppStorage.saveUsername("${userModel!.userDetails!.username}");
+        AppStorage.saveEmail("${userModel!.userDetails!.email}");
+        print(AppStorage.readId());
         print("username=================>${userModel!.userDetails!.id}");
         userNameController.text = userModel!.userDetails!.username!;
         emailController.text = userModel!.userDetails!.email!;
         birthdayController.text = userModel!.userDetails!.birthday!;
-        getUser(AppStorge.readId().toString());
+        getUser(AppStorage.readId().toString());
         Get.to(ConversationlistPage(id: currentUserId.value));
       } else {
-        // Afficher un message d'erreur ou gérer l'échec de la connexion
       }
     } catch (error) {
       print("error=====> $error");
@@ -272,8 +292,7 @@ class ProfileController extends GetxController {
           .post(ApiConstants.forgotPasswordUrl, data: data)
           .then((value) {
         print('Password reset instructions sent to your email.');
-        Get.to(
-            const EnterCodePage()); // Naviguer vers la page de saisie du code
+        Get.to(EnterCodePage()); // Naviguer vers la page de saisie du code
       }).onError((error, stackTrace) {
         print("error=====> $error");
       });
@@ -377,4 +396,87 @@ class ProfileController extends GetxController {
   }
 
   void signOut() {}
+
+  Future<void> getUserImage() async {
+    String currentUserId = AppStorage.readId().toString();
+    String apiUrl = 'http://192.168.1.45:8085/api/users/image/$currentUserId';
+
+    try {
+      var response = await http.get(Uri.parse(apiUrl));
+      if (response.statusCode == 200) {
+        imageUrl.value = response.body;
+        print(imageUrl);
+      } else {
+        print('Failed to fetch image URL');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Future<void> uploadImage(BuildContext context, PickedFile pickedFile) async {
+    String currentUserId = AppStorage.readId().toString();
+
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('http://192.168.1.45:8085/cloudinary/upload/$currentUserId'),
+    );
+
+    // Read the file as bytes
+    List<int> bytes = await pickedFile.readAsBytes();
+
+    // Create a MultipartFile from bytes
+    var multipartFile = http.MultipartFile.fromBytes(
+      'multipartFile',
+      bytes,
+      filename: pickedFile.path.split('/').last,
+    );
+
+    // Add the MultipartFile to the request
+    request.files.add(multipartFile);
+
+    try {
+      var response = await request.send();
+      if (response.statusCode == 200) {
+        // Image uploaded successfully
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Image uploaded successfully!'),
+          ),
+        );
+        // Fetch the updated image URL after uploading
+        getUserImage();
+      } else {
+        // Error uploading image
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to upload image!'),
+          ),
+        );
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  Future<void> deleteAccount() async {
+    String userId = currentUserId.value;
+    String deleteUrl = "${ApiConstants.deleteUrl}/$userId";
+
+    try {
+      final response = await http.delete(Uri.parse(deleteUrl));
+      if (response.statusCode == 204) {
+        // Account successfully deleted
+        AppStorage.clear(); // Clear stored user data
+        Get.offAll(LoginPage()); // Navigate to sign-in page
+        Get.snackbar("Success", "Account deleted successfully");
+      } else {
+        // Handle error
+        Get.snackbar("Error", "Failed to delete account");
+      }
+    } catch (e) {
+      print("Error deleting account: $e");
+      Get.snackbar("Error", "An error occurred while deleting the account");
+    }
+  }
 }

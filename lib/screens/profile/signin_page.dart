@@ -18,19 +18,20 @@ class LoginPage extends GetView<ProfileController> {
     return Scaffold(
       body: Stack(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage("asset/images/img.jpg"),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
+          // Container(
+          //   decoration: BoxDecoration(
+          //     color: Color(0xFF060B8A),
+          //     // image: DecorationImage(
+          //     //   image: AssetImage("assets/images/img.jpg"),
+          //     //   fit: BoxFit.cover,
+          //     // ),
+          //   ),
+          // ),
           Container(
             margin: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color:
-                  Colors.white.withOpacity(0.8), // Couleur de fond avec opacité
+              color: Color.fromARGB(255, 212, 83, 175).withOpacity(0.3),
+
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(40),
                 topRight: Radius.circular(40),
@@ -60,9 +61,16 @@ class LoginPage extends GetView<ProfileController> {
       children: [
         Text(
           "Login",
-          style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Color(0xFF060B8A),
+            fontSize: 40, fontWeight: FontWeight.bold),
+          
         ),
-        Text("Enter your credentials to login"),
+        Text(
+          "Enter your credentials to login",
+          style: TextStyle(
+            color: Color(0xFF060B8A),)
+          ),
       ],
     );
   }
@@ -111,7 +119,7 @@ class LoginPage extends GetView<ProfileController> {
               },
               child: Text(
                 "Forgot password?",
-                style: TextStyle(color: Colors.purple),
+                style: TextStyle(color: Color(0xFF060B8A)),
               ),
             ),
           ),
@@ -120,12 +128,14 @@ class LoginPage extends GetView<ProfileController> {
             onTap: () {
               print("ontap");
               if (controller.keyForm.currentState!.validate()) {
-                controller.signIn();
-              }
-              // Get.to(ConversationlistPage());
+                controller.signIn();}
+              // } Get.to(ScreenChat(
+              //   contactId: "6675030dccc5259c51c4890b",
+              //   currentUserId: "6675030dccc5259c51c4890b",
+              // ));
             },
             text: "Login",
-            backgroundColor: Colors.purple,
+            backgroundColor: Colors.blue,
             width: 20,
           ),
         ],
@@ -147,7 +157,7 @@ class LoginPage extends GetView<ProfileController> {
           },
           child: Text(
             "Sign Up",
-            style: TextStyle(color: Colors.purple),
+            style: TextStyle(color: Color(0xFF060B8A)),
           ),
         )
       ],

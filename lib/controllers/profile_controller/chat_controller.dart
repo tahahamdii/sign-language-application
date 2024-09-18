@@ -44,14 +44,14 @@ class ChatController extends GetxController {
   Future<void> sendMessage(String text, String recipientId) async {
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:8080/chats'),
+        Uri.parse('http://192.168.1.45:8085/chats'),
         headers: <String, String>{
           'Content-Type': 'application/json',
         },
         body: jsonEncode(<String, String>{
           'message': text,
           'recipientId': recipientId,
-          'senderId': AppStorge.readId().toString(), // Assurez-vous que AppStorge.readId() renvoie l'ID de l'utilisateur actuel
+          'senderId': AppStorage.readId().toString(), // Assurez-vous que AppStorage.readId() renvoie l'ID de l'utilisateur actuel
         }),
       );
       if (response.statusCode == 200) {

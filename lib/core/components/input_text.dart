@@ -32,7 +32,7 @@ class InputText extends StatelessWidget {
           borderSide: BorderSide.none,
         ),
         
-        fillColor: Colors.purple.withOpacity(0.1),
+        fillColor: Color.fromARGB(255, 241, 232, 243),
         filled: true,
         prefixIcon: Icon(icon),
         suffixIcon: suffixIcon, // Utilisation du paramètre suffixIcon

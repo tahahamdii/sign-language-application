@@ -14,23 +14,25 @@ class NewPasswordPage extends GetView<ProfileController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create New Password'),
+        title: Text('Create New Password', 
+        style: TextStyle(color: Colors.white),),
         
-        backgroundColor: const Color.fromARGB(255, 232, 228, 232),
-        
+       backgroundColor: Color.fromARGB(255, 16, 9, 74),
+        iconTheme: IconThemeData(color: Colors.white), 
       ),
+      
       body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("asset/images/img.jpg"),
-            fit: BoxFit.cover,
-          ),
-        ),
+        // decoration: BoxDecoration(
+        //   image: DecorationImage(
+        //     image: AssetImage("assets/images/img.jpg"),
+        //     fit: BoxFit.cover,
+        //   ),
+        // ),
         child: Center(
           child: SingleChildScrollView(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+              color: Color.fromARGB(255, 212, 83, 175).withOpacity(0.3),
                 borderRadius: BorderRadius.circular(20.0),
                 
               ),
@@ -44,7 +46,11 @@ class NewPasswordPage extends GetView<ProfileController> {
                   children: [
                     Text(
                       'Create a new password',
-                      style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+
+                      style: TextStyle(
+                      color: Color(0xFF060B8A),
+
+                        fontSize: 24.0, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 20.0),
@@ -67,7 +73,7 @@ class NewPasswordPage extends GetView<ProfileController> {
                         if (keyForm.currentState!.validate()) {
                           // Call the method to save the new password
                           controller.saveNewPassword(
-                            AppStorge.readresetCode().toString(),
+                            AppStorage.readResetCode().toString(),
                             newPasswordController.text,
                             confirmNewPasswordController.text,
                           );

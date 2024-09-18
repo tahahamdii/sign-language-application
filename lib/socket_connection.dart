@@ -8,7 +8,7 @@ class SocketIOExample extends StatefulWidget {
 }
 
 class SocketIOExampleState extends State<SocketIOExample> {
-  final String serverUrl = 'http://localhost:8080/ws';
+  final String serverUrl = 'http://192.168.1.45:8080/ws';
   late IO.Socket socket;
   TextEditingController messageController = TextEditingController();
   List<String> messages = [];

@@ -12,22 +12,24 @@ class ForgotPasswordPage extends GetView<ProfileController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Forgot Password'),
-        backgroundColor: const Color.fromARGB(255, 227, 216, 228),
+        title: Text('Forgot Password',
+        style: TextStyle(color: Colors.white),),
+        backgroundColor: Color.fromARGB(255, 16, 9, 74),
+        iconTheme: IconThemeData(color: Colors.white), 
       ),
       body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("asset/images/img.jpg"),
-            fit: BoxFit.cover,
-          ),
-        ),
+        // decoration: BoxDecoration(
+        //   image: DecorationImage(
+        //     image: AssetImage("asset/images/img.jpg"),
+        //     fit: BoxFit.cover,
+        //   ),
+        // ),
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+              color: Color.fromARGB(255, 212, 83, 175).withOpacity(0.3),
                 borderRadius: BorderRadius.circular(20.0),
               ),
               padding: const EdgeInsets.all(24.0),
@@ -37,13 +39,19 @@ class ForgotPasswordPage extends GetView<ProfileController> {
                 children: [
                   Text(
                     'Forgot your password?',
-                    style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold, color: Colors.purple),
+                    style: TextStyle(
+                      color: Color(0xFF060B8A),
+
+                      fontSize: 24.0, fontWeight: FontWeight.bold, ),
                   ),
                   SizedBox(height: 20.0),
                   Text(
                     'Enter your email address below to reset your password.',
+
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16.0, color: Colors.black87),
+                    style: TextStyle(
+                      color: Color(0xFF060B8A),
+                      fontSize: 16.0,),
                   ),
                   SizedBox(height: 20.0),
                   InputText(
@@ -66,7 +74,8 @@ class ForgotPasswordPage extends GetView<ProfileController> {
                       ),
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
-                        backgroundColor: Colors.purple,
+                        backgroundColor:  Color(0xFF060B8A),
+
                         // Couleur du texte
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18.0), // Bord arrondi du bouton
